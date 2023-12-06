@@ -1,0 +1,27 @@
+.button_container{
+  position: relative;
+  padding: 1vw;
+}
+
+.button {
+  border-radius: 10px;
+  border: 2px #f596aa80 solid;
+  background-color: white;
+  transition: transform 0.3s ease, background-color 0.3s ease; /* 添加过渡效果 */
+  width: 3vw;
+  height: 3vh;
+  font-size: 1.3vh;
+  outline: none;
+}
+
+.button:hover {
+  transform: scale(1.1); /* 放大到原来的1.1倍 */
+  background-color: #f596aa; /* 颜色变暗 */
+  cursor: pointer;
+  color: white; /* 如果需要的话，也可以改变文字颜色 */
+}
+.lang_button_container{
+  margin-left: 4vw;
+  margin-right: 4vw;
+  position: relative;
+}

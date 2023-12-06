@@ -1,0 +1,9 @@
+.text_container{
+    border-radius: 10px;
+    min-height: 30vh;
+    min-width: 30vw;
+    border: 2px #f596aa70 solid;
+    resize:none;
+    outline: none;
+    box-shadow: 0 7px 10px #f596aa70;
+  }

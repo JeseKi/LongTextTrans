@@ -1,0 +1,55 @@
+.container{
+  width: 100%;
+  height: 100%;
+  margin-top: 3vh;
+  margin-bottom: 5vh;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.text_container{
+  border-radius: 10px;
+  min-height: 30vh;
+  min-width: 30vw;
+  border: 2px #f596aa70 solid;
+  resize:none;
+  outline: none;
+  box-shadow: 0 7px 10px #f596aa70;
+}
+
+.button_container{
+  position: relative;
+  padding: 1vw;
+}
+
+.button {
+  border-radius: 10px;
+  border: 2px #f596aa80 solid;
+  background-color: white;
+  transition: transform 0.3s ease, background-color 0.3s ease; /* 添加过渡效果 */
+  width: 3vw;
+  height: 3vh;
+  font-size: 1.3vh;
+  text-align: center;
+}
+
+.button:hover {
+  transform: scale(1.1); /* 放大到原来的1.1倍 */
+  background-color: #f596aa; /* 颜色变暗 */
+  cursor: pointer;
+  color: white; /* 如果需要的话，也可以改变文字颜色 */
+}
+.lang_button_container{
+  margin-left: 4vw;
+  margin-right: 4vw;
+  position: relative;
+}
+
+.ID_KEY{
+  position: relative;
+  height: 3em;
+  width: 10vw;
+  border: 2px #f596aa dashed;
+  border-radius: 10px;
+  margin: 1vh;
+}
