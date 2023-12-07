@@ -26,6 +26,7 @@ class OpenAITranslator(Translator):
                         {'role' : 'user' , 'content' : f'Translate the text from {source_lang} to {target_lang} Language, please do not explain my original text.:{text}'}
                         ],
                     stream=True,
+                    temperature=0
                 )
                 self.isReponsed = True
                 for chunk in stream:

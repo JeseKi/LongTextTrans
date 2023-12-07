@@ -1,5 +1,6 @@
 from typing import List ,Callable
 import json
+import asyncio
 
 from utils.logger import Logger
 
@@ -17,7 +18,7 @@ class Translator():
                           split_callback: Callable[[str , int], List[str]], # 多数翻译API都限制单次请求的文本长度
                           translate_callback: Callable[..., str],# 翻译API,输入参数不限,但是需要返回字符串
                           isStream: bool = False, # 翻译API返回的内容是否是流式
-                          max_length: int = 5500,
+                          max_length: int = 2000,
                           *args, **kwargs
                         ):
         """
@@ -33,33 +34,33 @@ class Translator():
         - *args, **kwargs: 传递给 translate_callback 的额外参数
         :return: 流式结果
         """
-        # i = 0
-        split_texts = await split_callback(text, max_length)
-        for element in split_texts:
+        splited_texts = split_callback(text, max_length)
+        for element in splited_texts:
             # 异步迭代 _openai_translate 的结果并逐个产生
             if isStream:
                 async for translation in translate_callback(element, source_lang, target_lang, *args, **kwargs):
-                    yield json.dumps(translation)
+                    # 日志
+                    logger.event_time_log(translation, True)
+                    logger.event_time_log(type(translation), True)
+                    yield json.dumps(translation) + "\n"
             else :
                 translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
-                yield json.dumps(translation)
-            # 日志
-            # i += 1
-            # logger.event_time_log(f"向服务端发送请求第{i}次",False)
-            # time.sleep(1)
+                logger.event_time_log(translation, True)
+                yield json.dumps(translation) + "\n"
 
-    async def splitText(self,text: str, maxlenth: int = 5500) -> List[str]:
+    def splitText(self,text: str, max_length: int = 2000) -> List[str]:
         """
         分割字符串
         参数:
         - text: 字符串
+        - max_length: 每一段所分割的长度
         :return: 分割后的每个元素均符合长度的字符串数组
         """
         # 计算文本长度
         text_length = len(text)
         text_segments = []
         # 根据文本长度计算需要分成几部分，使用天花板除法确保分割完全
-        num_partitions = -(-text_length // maxlenth)
+        num_partitions = -(-text_length // max_length)
         
         # 如果文本已经足够短，不需要分割，直接返回包含原文本的列表
         if num_partitions == 1:
@@ -92,3 +93,4 @@ class Translator():
         text_segments.append(text[last_split_point:])
         
         return text_segments  # 返回分割后的文本段列表
+    

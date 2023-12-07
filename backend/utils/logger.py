@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 class Logger():
-    def event_time_log(self, event:str, isdatatime: bool):
+    def event_time_log(self, event:str, isdatatime: bool = True):
         """
         记录事件和其发生的时间
         :param event: 事件
