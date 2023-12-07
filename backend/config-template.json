@@ -1,6 +1,8 @@
 {
     "tencentCloudID": "",
     "tencentCloudKey": "",
-    "OpenAIKey" : ""
+    "OpenAIKey" : [
+        ""
+    ]
 }
   
