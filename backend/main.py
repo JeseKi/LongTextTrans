@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse , FileResponse
 from fastapi.staticfiles import StaticFiles
-import uvicorn
 
-from translator.tencentTranslator import Translator
+from translator.tencentTranslator import TencentTranslator
+from translator.openaiTranslator import OpenAITranslator
 from translator.types import TencentTranslationRequest, OpenAITranslationRequest
 from config import Config
 
@@ -27,20 +27,49 @@ def config(tencent_id: str = "", tencent_key: str = "", openai_key: str = "") ->
     
 @app.post("/api/tencent_translate")
 async def tencent_translate(translation_request: TencentTranslationRequest):
-    tencent_config = myConfig.read_config()
-    tencent_translator = Translator(tencent_config['tencentCloudID'], tencent_config['tencentCloudKey'])
-    result = tencent_translator.elementsTranslate(
+    if (translation_request.ID != "") and (translation_request.Key != "") :
+        tencent_config = {
+            'tencentCloudID' : translation_request.ID,
+            'tencentCloudKey' : translation_request.Key
+        }
+        print("useUnlocal")
+    else :
+        tencent_config = myConfig.read_config()
+        print("useLocal")
+        
+    tencent_translator = TencentTranslator(tencent_config['tencentCloudID'], tencent_config['tencentCloudKey'])
+    result_generator = tencent_translator.elementsTranslate(
                 translation_request.text, 
                 translation_request.source_lang, 
                 translation_request.target_lang, 
-                tencent_translator._splitText, 
+                tencent_translator.splitText, 
                 tencent_translator._tencentTranslate
             )
-    return StreamingResponse(result)
+    
+    return StreamingResponse(result_generator)
 
-@app.post("api/openai_translate")
+@app.post("/api/openai_translate")
 async def openai_translate(translation_request: OpenAITranslationRequest):
-    pass
+    if translation_request.api_key and (translation_request.api_key != [""]) :
+        openai_keys = translation_request.api_key
+        print("useUnlocal")
+    else :
+        openai_keys = myConfig.read_config()['OpenAIKey']
+        print("useLocal")
+        
+    openai_translator = OpenAITranslator(openai_keys)
+    result_generator = openai_translator.elementsTranslate(
+        translation_request.text,
+        translation_request.source_lang,
+        translation_request.target_lang,
+        openai_translator.splitText,
+        openai_translator._openai_translate,
+        isStream=True,
+        max_length=2000,
+        model = translation_request.model
+    )
+    
+    return StreamingResponse(result_generator, media_type='text/plain')
 
 @app.get("/")
 async def index():

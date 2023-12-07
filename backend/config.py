@@ -46,9 +46,11 @@ class Config():
             self.changeLog += "OpenAIKEy,"
         with open('config.json', 'w', encoding='utf-8') as config_file:
             json.dump(self.config, config_file, indent=4)
+            
         return [self.changeLog, self.isChange]
     
     def read_config(self) -> dict:
         with open('config.json', 'r', encoding='utf-8') as config_file:
             self.config = json.load(config_file)
+            
         return self.config
