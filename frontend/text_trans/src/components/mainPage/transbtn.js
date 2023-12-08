@@ -2,33 +2,38 @@ import React ,{useEffect , useState} from "react"
 import "./transbtn.css"
 import languageData from './languages.json'
 
-import { Dropdown, DropdownButton } from 'react-bootstrap';
-
-export default function TransBtn ( {setOutput , service} ) {
+export default function TransBtn ( {setOutput , service , setAccumulatedContent} ) {
     const [sourceLang , setSourceLang] = useState("en");
     const [targetLang , setTargetLang] = useState("zh");
     const [targetOptions , setTargetOptions] = useState([])
 
+    // 及时更新语言选项
     useEffect(() => {
-      
       if (languageData[sourceLang]) {
         setTargetOptions(languageData[sourceLang]);
       }
     }, [sourceLang]);
+
     const fetchData = async (input, sourceLang, targetLang, setOutput) => {
+      
+      // 腾讯云服务
       if (service === "TencentCloud") {
       const url = "http://127.0.0.1:8000/api/tencent_translate";
-  
+
       try {
-          const response = await fetch(url, {
+        const text = new TextEncoder().encode(input)
+        const encodedText = btoa(String.fromCharCode(...text))
+        const response = await fetch(url, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                  text: input,
+                  text: encodedText,
                   source_lang: sourceLang,
-                  target_lang: targetLang
+                  target_lang: targetLang,
+                  ID: localStorage.getItem('tencentCloudID'),
+                  Key: localStorage.getItem('tencentCloudKey')
               })
           });
   
@@ -38,13 +43,49 @@ export default function TransBtn ( {setOutput , service} ) {
               const { done, value } = await reader.read();
               if (done) break;
               result += new TextDecoder().decode(value);
+              console.log(result);
+              setOutput(result); // 使用 setOutput 更新数据
           }
-          console.log(result);
-          setOutput(result); // 使用 setOutput 更新数据
+
       } catch (error) {
           console.error('Fetch error:', error);
       }
     }
+    // OpenAI服务
+    if (service === "OpenAI") {
+      const url = "http://127.0.0.1:8000/api/openai_translate";
+
+        try {
+          const text = new TextEncoder().encode(input)
+          const encodedText = btoa(String.fromCharCode(...text))
+          const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  model: localStorage.getItem('model'),
+                  text: encodedText,
+                  source_lang: sourceLang,
+                  target_lang: targetLang,
+                  api_key : localStorage.getItem('openaiKey')
+              })
+          });
+
+          const reader = response.body.getReader();
+          let result = '';
+          while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              result += new TextDecoder().decode(value);
+              console.log(result);
+              setOutput(result); // 使用 setOutput 更新数据
+          }
+
+      } catch (error) {
+          console.error('Fetch error:', error);
+      }
+  } 
   };
   
 
@@ -52,7 +93,10 @@ export default function TransBtn ( {setOutput , service} ) {
         const currentInput = document.getElementById("input").value;
         const currentSourceLang = document.getElementById("sourceLang").value;
         const currentTargetLang = document.getElementById("targetLang").value;
-      
+        
+        setOutput("")
+        setAccumulatedContent("")
+
         fetchData(currentInput, currentSourceLang, currentTargetLang, setOutput);
       };
 

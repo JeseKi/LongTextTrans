@@ -7,3 +7,7 @@
     outline: none;
     box-shadow: 0 7px 10px #f596aa70;
   }
+
+.file_get{
+  position: absolute;
+}

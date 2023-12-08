@@ -3,6 +3,24 @@ import "./id_key_save.css"
 
 export default function IdKeySave () {
     const [selected , setSeleted] = useState("")
+    const [isShow, setIsShow] = useState(false)
+
+    const handelShowChange = () => {
+      setIsShow(!isShow)
+      console.log(isShow)
+    }
+    useEffect(() => {
+      const openaiKEYInput = document.getElementById('openaiKEY');
+      const tencentCloudKeyInput = document.getElementById('myKEY')
+      if (isShow) {
+        openaiKEYInput.type = 'text'; // 显示密码
+        tencentCloudKeyInput.type = 'text'
+      } else {
+        openaiKEYInput.type = 'password'; // 隐藏密码
+        tencentCloudKeyInput.type = 'password'
+      }
+    }, [isShow]);
+    
 
     const handleSelectChange = (event) => {
       setSeleted(event.target.value);
@@ -47,12 +65,12 @@ export default function IdKeySave () {
             <input className='ID_KEY' type="text" placeholder="腾讯云ID" id="myID" /> 
             </span>
             <span>KEY :
-            <input className='ID_KEY' type="password" placeholder="腾讯云KEY" id="myKEY"/>
+            <input className='ID_KEY' type="password" placeholder="腾讯云KEY" id="myKEY" />
             </span>
             </div>
             <hr/>
             <h4>OpenAI设置</h4>
-            <span>OpenAI-Key:
+            <span>OpenAI-Key(支持多个OpenAIKey,只需将各个OpenAIKey用英语逗号分隔即可):
             <input className="ID_KEY" type="password" placeholder="OpenAIKey" id="openaiKEY"/>
             </span>
             <span>模型:&nbsp;&nbsp;&nbsp;
@@ -73,6 +91,7 @@ export default function IdKeySave () {
             </span>
             <hr/>
             <button className='savebutton' style={{ fontSize: '0.8em' }} id="save_id_key" onClick={saveToLocalStorage}>保存</button>
+            <button className="savebutton" style={{ fontSize: '0.8em', bottom: '10'}} id="show" onClick={handelShowChange}>显示Keys</button>
         </div>
     )
 }

@@ -2,17 +2,18 @@ import React ,{useEffect , useState} from "react"
 import "./App.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import TransBtn from "./components/mainPage/transbtn";
-import Output from "./components/mainPage/output";
-import Input from "./components/mainPage/input";
+import TransBtn from "./components/mainPage/transbtn"; // 选择语言,发送请求,更新输出等
+import Output from "./components/mainPage/output"; // 输出框
+import Input from "./components/mainPage/input"; // 输入框
 
-import SettingsActivate from "./components/settingsPage/settings_activate";
-import SettingsContainer from "./components/settingsPage/container";
+import SettingsActivate from "./components/settingsPage/settings_activate"; // 选择服务,是否打开设置页面等
+import SettingsContainer from "./components/settingsPage/container"; // 设置页面
 
 function App() {
   const [output, setOutput] = useState("");
   const [activateSettings, setActivateSettings] = useState(false)
   const [service, setService] = useState("OpenAI");
+  const [accumulatedContent, setAccumulatedContent] = useState("");
 
   return (
     <div>
@@ -21,8 +22,8 @@ function App() {
         <SettingsContainer activateSettings={activateSettings} setActivateSettings={setActivateSettings} />
         <SettingsActivate setActivateSettings={setActivateSettings} service={service} setService={setService}/>
         <Input setOutput />
-        <TransBtn setOutput={setOutput} service={service}/>
-        <Output output={output}/>
+        <TransBtn setOutput={setOutput} setAccumulatedContent={setAccumulatedContent} service={service}/>
+        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent}/>
       </div>
     </div>
   );
