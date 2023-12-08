@@ -12,4 +12,4 @@ class OpenAITranslationRequest(BaseModel):
     text: str
     source_lang: str
     target_lang: str
-    api_key: list
+    api_key: str

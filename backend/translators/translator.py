@@ -40,12 +40,12 @@ class Translator():
             if isStream:
                 async for translation in translate_callback(element, source_lang, target_lang, *args, **kwargs):
                     # 日志
-                    logger.event_time_log(translation, True)
-                    logger.event_time_log(type(translation), True)
+                    # logger.event_time_log(translation, True)
+                    # logger.event_time_log(type(translation), True)
                     yield json.dumps(translation) + "\n"
             else :
                 translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
-                logger.event_time_log(translation, True)
+                # logger.event_time_log(translation, True)
                 yield json.dumps(translation) + "\n"
 
     def splitText(self,text: str, max_length: int = 2000) -> List[str]:

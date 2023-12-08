@@ -1,4 +1,5 @@
 from openai import OpenAI , OpenAIError
+import time
 
 from .translator import Translator
 
