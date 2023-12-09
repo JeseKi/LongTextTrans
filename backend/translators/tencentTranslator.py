@@ -74,6 +74,7 @@ class TencentTranslator(Translator):
            #  result = json.loads(resp.to_json_string())["TargetText"]
            #  self.request_times.append(current_time)
             result = "text"
+            time.sleep(1)
             return (
                 {
                     "message" : True,
