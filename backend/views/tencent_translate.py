@@ -1,10 +1,12 @@
 from fastapi import HTTPException, Depends
 from fastapi.responses import StreamingResponse
 import base64
+import json
 
 from translators.tencentTranslator import TencentTranslator
 from translators.types import TencentTranslationRequest
 from config import Config
+from utils.mystream import MyStreamingResponse
 
 class TencentTranslateView:
     def __init__(self, tencent_translator: TencentTranslator, config: Config):
@@ -18,6 +20,8 @@ class TencentTranslateView:
                 'tencentCloudID': translation_request.ID,
                 'tencentCloudKey': translation_request.Key
             }
+            self.tencent_translator.ID = tencent_config["tencentCloudID"]
+            self.tencent_translator.KEY = tencent_config["tencentCloudKey"]
             print("useUnlocal")
         else:
             tencent_config = self.config.read_config()
@@ -25,7 +29,6 @@ class TencentTranslateView:
 
         # 解码文本
         decoded_text = base64.b64decode(translation_request.text.encode()).decode()
-
         # 翻译
         result_generator = self.tencent_translator.elementsTranslate(
             decoded_text,
@@ -33,7 +36,8 @@ class TencentTranslateView:
             translation_request.target_lang,
             self.tencent_translator.splitText,
             self.tencent_translator._tencentTranslate,
+            max_length=10,
         )
-
+        
         # 流式返回结果
-        return StreamingResponse(result_generator)
+        return MyStreamingResponse(result_generator)

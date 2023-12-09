@@ -1,15 +1,15 @@
+import asyncio
 from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse , FileResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-import base64
-import asyncio
 
 from translators.tencentTranslator import TencentTranslator
 from translators.openaiTranslator import OpenAITranslator
 from translators.types import TencentTranslationRequest, OpenAITranslationRequest
 from config import Config
 from utils.logger import Logger
+from utils.mystream import MyStreamingResponse
 from views.openai_translate import OpenAITranslateView
 from views.tencent_translate import TencentTranslateView
 
@@ -51,16 +51,16 @@ async def openai_translate(translation_request: OpenAITranslationRequest):
     return await openai_translate_view.translate(translation_request)
 
 # 流式测试
-# @app.get("/stream_test")
-# async def stream_messages() -> str:
-#     test_text = "test\n"
-#     async def gen() :
-#         for i in range(10):
-#             yield test_text
-#             await asyncio.sleep(1)
-#             i += 1
-#     print(type(gen()))
-#     return StreamingResponse(gen())
+@app.get("/stream_test")
+async def stream_messages() -> str:
+    test_text = "test\n"
+    async def gen() :
+        for i in range(10):
+            yield test_text
+            await asyncio.sleep(1)
+            i += 1
+    print(type(gen()))
+    return MyStreamingResponse(gen())
 
 # 主页
 @app.get("/")

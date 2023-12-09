@@ -1,6 +1,6 @@
 from typing import List ,Callable
 import json
-import asyncio
+import time
 
 from utils.logger import Logger
 
@@ -17,7 +17,6 @@ class Translator():
                           target_lang: str,
                           split_callback: Callable[[str , int], List[str]], # 多数翻译API都限制单次请求的文本长度
                           translate_callback: Callable[..., str],# 翻译API,输入参数不限,但是需要返回字符串
-                          isStream: bool = False, # 翻译API返回的内容是否是流式
                           max_length: int = 2000,
                           *args, **kwargs
                         ):
@@ -29,24 +28,25 @@ class Translator():
         - target_lang: 目标语言
         - split_callback: 用于分割字符串的回调函数,需传入源文本和分割的每一段的最大长度,返回一个数组
         - translate_callback: 用于翻译字符串的回调函数
-        - isStream: 翻译API返回的内容是否是流式
         - max_lenth: 每一段所分割的长度
         - *args, **kwargs: 传递给 translate_callback 的额外参数
         :return: 流式结果
         """
         splited_texts = split_callback(text, max_length)
+        texts_count = len(splited_texts)
+        i = 0
+        
         for element in splited_texts:
-            # 异步迭代 _openai_translate 的结果并逐个产生
-            if isStream:
-                async for translation in translate_callback(element, source_lang, target_lang, *args, **kwargs):
-                    # 日志
-                    # logger.event_time_log(translation, True)
-                    # logger.event_time_log(type(translation), True)
-                    yield json.dumps(translation) + "\n"
-            else :
-                translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
-                # logger.event_time_log(translation, True)
-                yield json.dumps(translation) + "\n"
+            # 异步迭代 translation 的结果并逐个产生
+            translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
+            # logger.event_time_log(translation, True)
+            i += 1
+            have_done = (i/texts_count) * 100
+            print("---"*30+"分割线")
+            yield json.dumps({
+                'have_done' : f"{have_done:.2f}",
+                'context' : json.dumps(translation)
+                }) + "\n"
 
     def splitText(self,text: str, max_length: int = 2000) -> List[str]:
         """
@@ -81,9 +81,9 @@ class Translator():
                 split_point = period_index + 1
             
             # 打印分割点信息，用于调试
-            start = max(0, split_point - 10)  # 确保开始不会低于文本开头
-            end = min(len(text), split_point + 10)  # 确保结束不会超过文本结尾
-            print(f"Splitting at position {split_point}: {text[start:split_point]}|{text[split_point:end]}...")
+            # start = max(0, split_point - 10)  # 确保开始不会低于文本开头
+            # end = min(len(text), split_point + 10)  # 确保结束不会超过文本结尾
+            # print(f"Splitting at position {split_point}: {text[start:split_point]}|{text[split_point:end]}...")
             
             # 将当前分割的文本段添加到段列表中
             text_segments.append(text[last_split_point:split_point])

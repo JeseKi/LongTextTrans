@@ -2,7 +2,7 @@ import React ,{useEffect , useState} from "react"
 import "./transbtn.css"
 import languageData from './languages.json'
 
-export default function TransBtn ( {setOutput , service , setAccumulatedContent} ) {
+export default function TransBtn ( {setOutput , service , setAccumulatedContent , setHaveDone} ) {
     const [sourceLang , setSourceLang] = useState("en");
     const [targetLang , setTargetLang] = useState("zh");
     const [targetOptions , setTargetOptions] = useState([])
@@ -36,16 +36,25 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent}
                   Key: localStorage.getItem('tencentCloudKey')
               })
           });
-  
+          
           const reader = response.body.getReader();
+          console.log('response:',response)
           let result = '';
+          console.log("result:"+result)
           while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              result += new TextDecoder().decode(value);
-              console.log(result);
-              setOutput(result); // 使用 setOutput 更新数据
-          }
+            const { done, value } = await reader.read();
+            if (done) break;
+        
+            // 解码当前读取的数据块
+            const chunk = new TextDecoder().decode(value);
+        
+            // 拼接到之前的结果
+            result += chunk;
+        
+            // 立即处理当前累积的结果
+            console.log("transbtn:",result);
+            setOutput(result);  // 在这里更新输出
+        }
 
       } catch (error) {
           console.error('Fetch error:', error);
@@ -74,13 +83,21 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent}
 
           const reader = response.body.getReader();
           let result = '';
+          console.log("result:"+result)
           while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              result += new TextDecoder().decode(value);
-              console.log(result);
-              setOutput(result); // 使用 setOutput 更新数据
-          }
+            const { done, value } = await reader.read();
+            if (done) break;
+        
+            // 解码当前读取的数据块
+            const chunk = new TextDecoder().decode(value);
+        
+            // 拼接到之前的结果
+            result += chunk;
+        
+            // 立即处理当前累积的结果
+            console.log("transbtn:",result);
+            setOutput(result);  // 在这里更新输出
+        }
 
       } catch (error) {
           console.error('Fetch error:', error);
@@ -96,6 +113,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent}
         
         setOutput("")
         setAccumulatedContent("")
+        setHaveDone(0)
 
         fetchData(currentInput, currentSourceLang, currentTargetLang, setOutput);
       };

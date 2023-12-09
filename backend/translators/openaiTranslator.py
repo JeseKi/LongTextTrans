@@ -20,38 +20,26 @@ class OpenAITranslator(Translator):
         for api_key in self.api_keys:
             try:
                 client = OpenAI(api_key=api_key)
-                stream = client.chat.completions.create(
+                response = client.chat.completions.create(
                     model=model,
                     messages=[
-                        {'role' : 'system', 'content' : 'You are a professional, authentic translation engine, only returns translations.'},
-                        {'role' : 'user' , 'content' : f'Translate the text from {source_lang} to {target_lang} Language, please do not explain my original text.:{text}'}
-                        ],
-                    stream=True,
+                        {'role': 'system', 'content': 'You are a professional, authentic translation engine, only returns translations.'},
+                        {'role': 'user', 'content': f'Translate the text from {source_lang} to {target_lang} Language, please do not explain my original text.:{text}'}
+                    ],
                     temperature=0
                 )
                 self.isReponsed = True
-                for chunk in stream:
-                    if chunk.choices[0].delta.content is not None:
-                        yield (
-                                {
-                                    'message' : self.isReponsed,
-                                    'content' : chunk.choices[0].delta.content
-                                }
-                            )
-                break
-            
+                return {
+                    "message": self.isReponsed,
+                    'content': f"{response.choices[0].message.content}"
+                }
+
             except OpenAIError as e:
                 print(f"An error occurred with key {api_key}: {str(e)}\n")
-                yield (
-                    {
-                        "message" : self.isReponsed,
-                        'content' : f"[Warning] API:\"{api_key}\"出现如下报错:\n{e}\n"
-                    }
-                )
+
+        # 如果所有的 API 都尝试过后还是没有响应，则返回错误信息
         if not self.isReponsed:
-            yield (
-                    {
-                        "message" : self.isReponsed,
-                        "content":"您提供的全部API均失效,请检查您所设置的API\n"
-                    }
-                )
+            return {
+                "message": self.isReponsed,
+                "err": "您提供的全部API均失效，请检查您所设置的API\n"
+            }

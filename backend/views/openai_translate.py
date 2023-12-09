@@ -5,6 +5,7 @@ import base64
 from translators.openaiTranslator import OpenAITranslator
 from translators.types import OpenAITranslationRequest
 from utils.formators import convert_to_list
+from utils.mystream import MyStreamingResponse
 from config import Config
 
 class OpenAITranslateView:
@@ -33,10 +34,9 @@ class OpenAITranslateView:
             translation_request.target_lang,
             self.openai_translator.splitText,
             self.openai_translator._openai_translate,
-            isStream=True,
             max_length=1000,
             model=translation_request.model
         )
 
         # 返回流式响应
-        return StreamingResponse(result_generator)
+        return MyStreamingResponse(result_generator)

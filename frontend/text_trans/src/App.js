@@ -14,6 +14,7 @@ function App() {
   const [activateSettings, setActivateSettings] = useState(false)
   const [service, setService] = useState("OpenAI");
   const [accumulatedContent, setAccumulatedContent] = useState("");
+  const [haveDone, setHaveDone] = useState(0)
 
   return (
     <div>
@@ -22,8 +23,8 @@ function App() {
         <SettingsContainer activateSettings={activateSettings} setActivateSettings={setActivateSettings} />
         <SettingsActivate setActivateSettings={setActivateSettings} service={service} setService={setService}/>
         <Input setOutput />
-        <TransBtn setOutput={setOutput} setAccumulatedContent={setAccumulatedContent} service={service}/>
-        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent}/>
+        <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone}/>
+        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone}/>
       </div>
     </div>
   );

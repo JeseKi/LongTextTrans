@@ -87,6 +87,6 @@ class TencentTranslator(Translator):
             return (
                 {
                     "message" : False,
-                    "content" : str(err)
+                    "err" : str(err)
                 }
             )

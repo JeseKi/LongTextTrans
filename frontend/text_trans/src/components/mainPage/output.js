@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-export default function Output({ output , accumulatedContent , setAccumulatedContent}) {
+export default function Output({ output , accumulatedContent , setAccumulatedContent, haveDone , setHaveDone}) {
+
 
     useEffect(() => {
         // 使用换行符分割字符串
@@ -9,13 +10,18 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
             try {
                 if (part.trim() !== '') {
                     const outputData = JSON.parse(part);
-                    if (outputData.message === true) {
+                    const contextData = JSON.parse(outputData.context)
+                    if (contextData.message === true) {
                         // 累积 content
-                        setAccumulatedContent(prevContent => prevContent + outputData.content);
+                        setAccumulatedContent(prevContent => prevContent + contextData.content);
+                        setHaveDone(outputData.have_done)
+                    }
+                    if (contextData.message === false) {
+                        alert(contextData.err)
                     }
                 }
             } catch (error) {
-                // 错误处理
+                // 错误
             }
         });
     }, [output]);
@@ -23,6 +29,9 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
 
     return (
         <div>
+            <div>
+                {haveDone}%
+            </div>
             <textarea 
                 className='text_container' 
                 placeholder="这里将出现等会翻译后的文本" 
