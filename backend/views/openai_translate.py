@@ -1,6 +1,7 @@
 from fastapi import HTTPException, Depends
 from fastapi.responses import StreamingResponse
 import base64
+import asyncio
 
 from translators.openaiTranslator import OpenAITranslator
 from translators.types import OpenAITranslationRequest
@@ -34,9 +35,11 @@ class OpenAITranslateView:
             translation_request.target_lang,
             self.openai_translator.splitText,
             self.openai_translator._openai_translate,
-            max_length=1000,
+            max_length=100,
+            isStream=True,
             model=translation_request.model
         )
 
         # 返回流式响应
         return MyStreamingResponse(result_generator)
+        # await message_queue.put(result_generator)

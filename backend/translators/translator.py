@@ -1,5 +1,6 @@
 from typing import List ,Callable
 import json
+import asyncio
 import time
 
 from utils.logger import Logger
@@ -18,6 +19,7 @@ class Translator():
                           split_callback: Callable[[str , int], List[str]], # 多数翻译API都限制单次请求的文本长度
                           translate_callback: Callable[..., str],# 翻译API,输入参数不限,但是需要返回字符串
                           max_length: int = 2000,
+                          isStream: bool = False,
                           *args, **kwargs
                         ):
         """
@@ -35,18 +37,53 @@ class Translator():
         splited_texts = split_callback(text, max_length)
         texts_count = len(splited_texts)
         i = 0
+        should_break = False
         
         for element in splited_texts:
-            # 异步迭代 translation 的结果并逐个产生
-            translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
-            # logger.event_time_log(translation, True)
+            # 计算已完成的百分比(不会达到100)
             i += 1
             have_done = (i/texts_count) * 100
-            print("---"*30+"分割线")
-            yield json.dumps({
-                'have_done' : f"{have_done:.2f}",
-                'context' : json.dumps(translation)
-                }) + "\n"
+            # 判断是否是流式翻译
+            if isStream:
+                # 迭代 translation 的结果并逐个产生
+                async for translation in translate_callback(element, source_lang, target_lang, *args, **kwargs):
+                    # 日志
+                    # logger.event_time_log(translation, True)
+                    # logger.event_time_log(type(translation), True)
+                    # 将结果封装成 JSON 格式
+                    if translation['message']:
+                        yield (json.dumps({
+                            'have_done' : f"{have_done:.2f}",
+                            'context' : json.dumps(translation)
+                            }) + "\n")
+                    else :
+                        yield (json.dumps({
+                            'have_done' : f"{have_done:.2f}",
+                            'context' : json.dumps(translation)
+                            }) + "\n")
+                        should_break = True
+            else :
+                # 直接调用 translation 函数并返回结果
+                translation = await translate_callback(element, source_lang, target_lang, *args, **kwargs)
+                # 日志
+                # logger.event_time_log(translation, True)
+                # 将结果封装成 JSON 格式
+                if translation['message']:
+                    yield (json.dumps({
+                        'have_done' : f"{have_done:.2f}",
+                        'context' : json.dumps(translation)
+                        }) + "\n")
+                else:
+                    yield (json.dumps({
+                        'have_done' : f"{have_done:.2f}",
+                        'context' : json.dumps(translation)
+                        }) + "\n")
+                    should_break = True
+                
+            if should_break :
+                break
+
+
 
     def splitText(self,text: str, max_length: int = 2000) -> List[str]:
         """
