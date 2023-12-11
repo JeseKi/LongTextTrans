@@ -15,7 +15,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
     }, [sourceLang]);
 
     const fetchData = async (input, sourceLang, targetLang, setOutput) => {
-      
+
       // 腾讯云服务
       if (service === "TencentCloud") {
       const url = "http://127.0.0.1:8000/api/tencent_translate";
@@ -60,49 +60,52 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
           console.error('Fetch error:', error);
       }
     }
-    // OpenAI服务
-    if (service === "OpenAI") {
-      const url = "http://127.0.0.1:8000/api/openai_translate";
+        // OpenAI服务
+        if (service === "OpenAI") {
+          const url = "http://127.0.0.1:8000/api/openai_translate";
 
-        try {
-          const text = new TextEncoder().encode(input)
-          const encodedText = btoa(String.fromCharCode(...text))
-          const response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                  model: localStorage.getItem('model'),
-                  text: encodedText,
-                  source_lang: sourceLang,
-                  target_lang: targetLang,
-                  api_key : localStorage.getItem('openaiKey')
-              })
-          });
+            try {
+              const text = new TextEncoder().encode(input)
+              const encodedText = btoa(String.fromCharCode(...text))
+              const response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      model: localStorage.getItem('model'),
+                      text: encodedText,
+                      source_lang: sourceLang,
+                      target_lang: targetLang,
+                      api_key : localStorage.getItem('openaiKey'),
+                      rpm : localStorage.getItem('rpm')
+                  })
+              });
 
-          const reader = response.body.getReader();
-          let result = '';
-          console.log("result:"+result)
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-        
-            // 解码当前读取的数据块
-            const chunk = new TextDecoder().decode(value);
-        
-            // 拼接到之前的结果
-            result += chunk;
-        
-            // 立即处理当前累积的结果
-            console.log("transbtn:",result);
-            setOutput(result);  // 在这里更新输出
-        }
+              const reader = response.body.getReader();
+              let result = '';
+              console.log("result:" + result);
+              while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+              
+                  // Decode the current chunk
+                  const chunk = new TextDecoder().decode(value);
+              
+                  // Replace the previous result with the new chunk
+                  result = chunk;  // Replace, don't append
+              
+                  // Immediately process the current accumulated result
+                  console.log("transbtn:", result);
+                  setOutput(result);  // Update the output here
+              }
+              
 
-      } catch (error) {
-          console.error('Fetch error:', error);
-      }
-  } 
+          } catch (error) {
+              console.error('Fetch error:', error);
+          }
+      } 
+ 
   };
   
 

@@ -31,10 +31,12 @@ export default function IdKeySave () {
         const savedKey = localStorage.getItem("tencentCloudKey");
         const savedOpenAIKEY = localStorage.getItem("openaiKey")
         const saveModel = localStorage.getItem("model")
-        if (savedID || savedKey || savedOpenAIKEY || saveModel) {
+        const saveRPM = localStorage.getItem('rpm')
+        if (true) {
           document.getElementById("myID").value = savedID;
           document.getElementById("myKEY").value = savedKey;
           document.getElementById("openaiKEY").value = savedOpenAIKEY
+          document.getElementById('rpm').value = saveRPM
           setSeleted(saveModel || "")
         }
       }, []);
@@ -44,10 +46,12 @@ export default function IdKeySave () {
         const key = document.getElementById("myKEY").value;
         const openaiKey = document.getElementById("openaiKEY").value;
         const model = document.getElementById("model").value
+        const rpm = document.getElementById('rpm').value
         localStorage.setItem("tencentCloudID", id);
         localStorage.setItem("tencentCloudKey", key);
         localStorage.setItem("openaiKey", openaiKey);
         localStorage.setItem("model", model)
+        localStorage.setItem('rpm', rpm)
 
         // console.log("Saved OpenAI Key:", localStorage.getItem("openaiKey"));
         // console.log("Saved ID:", localStorage.getItem("tencentCloudID"));
@@ -89,6 +93,12 @@ export default function IdKeySave () {
               <option value="gpt-4-32k-0613">gpt-4-32k-0613</option>
             </select>
             </span>
+            <p>每分钟最大请求数,你可以在
+              <a href="https://platform.openai.com/account/limits" className="url" target="_blank">这里</a>
+              查看你的每分钟最大请求数(RPM)
+              <input className="ID_KEY" type="number" placeholder="RPM" id="rpm"/>
+            </p>
+            
             <hr/>
             <button className='savebutton' style={{ fontSize: '0.8em' }} id="save_id_key" onClick={saveToLocalStorage}>保存</button>
             <button className="savebutton" style={{ fontSize: '0.8em', bottom: '10'}} id="show" onClick={handelShowChange}>显示Keys</button>

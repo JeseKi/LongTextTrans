@@ -23,3 +23,8 @@
   border-radius: 10px;
   margin: 1vh;
 }
+
+.url {
+  text-decoration: none;
+  color: #f596aa;
+}

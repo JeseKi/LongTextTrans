@@ -11,3 +11,16 @@ h1 {
   text-align: center;
   margin-top: 2vh !important;
 }
+
+.fade-out {
+  animation: fadeOut 0.5s;
+}
+
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+  }
+  to {
+      opacity: 0;
+  }
+}
