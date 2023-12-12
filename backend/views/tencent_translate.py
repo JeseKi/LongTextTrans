@@ -30,7 +30,7 @@ class TencentTranslateView:
             print("useLocal")
 
         # 解码文本
-        decoded_text = base64.b64decode(translation_request.content.encode()).decode()
+            decoded_text = base64.b64decode(translation_request.content.encode()).decode()
         # 翻译
         result_generator = self.tencent_translator.elementsTranslate(
             decoded_text,
@@ -43,3 +43,34 @@ class TencentTranslateView:
         
         # 流式返回结果
         return MyStreamingResponse(result_generator, media_type="text/event-stream")
+
+    async def file_translate(self, translation_request: TencentTranslationRequest) -> StreamingResponse:
+        # 判断ID与KEY是否存在
+        if (translation_request.ID) and (translation_request.Key):
+            tencent_config = {
+                'tencentCloudID': translation_request.ID,
+                'tencentCloudKey': translation_request.Key
+            }
+            self.tencent_translator.ID = tencent_config["tencentCloudID"]
+            self.tencent_translator.KEY = tencent_config["tencentCloudKey"]
+            print("useUnlocal")
+        else:
+            tencent_config = self.config.read_config()
+            self.tencent_translator.ID = tencent_config["tencentCloudID"]
+            self.tencent_translator.KEY = tencent_config["tencentCloudKey"]
+            print("useLocal")
+
+            decoded_text = translation_request.content
+        # 翻译
+        result_generator = self.tencent_translator.elementsTranslate(
+            decoded_text,
+            translation_request.source_lang,
+            translation_request.target_lang,
+            self.tencent_translator.splitText,
+            self.tencent_translator._tencentTranslate,
+            isStream=False,
+        )
+        
+        # 流式返回结果
+        async for data in result_generator:
+            yield data

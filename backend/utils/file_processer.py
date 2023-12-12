@@ -55,9 +55,9 @@ class FileProcessor:
         await self.process_file() # 加载文件内容
         
         request['content']= self.content
-        request_translate = request_type(**request)
-        # 调用翻译回调函数，传递isFile=True
-        result_generator = await translate_callback(request_translate, isFile=True)
+        request_translate = request_type(**request) 
+        result_generator = translate_callback(request_translate)
+        
         async for origin_data in result_generator:
             data = json.loads(origin_data)
             context = json.loads(data["context"])
