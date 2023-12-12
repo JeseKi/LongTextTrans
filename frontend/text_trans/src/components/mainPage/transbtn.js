@@ -17,8 +17,8 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
         service: service,
         source_lang: sourceLang,
         target_lang: targetLang,
-        tencentCloudID: localStorage.getItem("tencentCloudID"),
-        tencentCloudKey: localStorage.getItem("tencentCloudKey"),
+        ID: localStorage.getItem("tencentCloudID"),
+        Key: localStorage.getItem("tencentCloudKey"),
         api_key: localStorage.getItem('openaiKey'),
         rpm: localStorage.getItem('rpm'),
         model: localStorage.getItem('model')
@@ -26,17 +26,37 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
 
       formData.append("data", JSON.stringify(payload));
   
-      try {
-          const response = await axios.post("http://localhost:8000/upload/", formData, {
-              headers: {
-                  'Content-Type': 'multipart/form-data'
-              }
-          });
-          console.log(response.data);
-          // Handle the response from the server here
-      } catch (error) {
+        fetch("http://localhost:8000/upload/", {
+          method: 'POST',
+          body: formData
+      }).then(response => {
+          const reader = response.body.getReader();
+          let result = '';
+          // 读取数据流
+          function read() {
+              reader.read().then(({ done, value }) => {
+                  if (done) {
+                      console.log("Stream complete");
+                      return;
+                  }
+                  // Decode the current chunk
+                  const chunk = new TextDecoder().decode(value);
+              
+                  // Replace the previous result with the new chunk
+                  result = chunk;  // Replace, don't append
+              
+                  // Immediately process the current accumulated result
+                  console.log("transbtn:", result);
+                  setOutput(result);  // Update the output here
+              }).catch(error => {
+                  console.error("Error reading stream:", error);
+              });
+          }
+          read();
+      }).catch(error => {
           console.error("Error uploading file and text:", error);
-      }
+      });
+    
   };
     // 及时更新语言选项
     useEffect(() => {
@@ -60,7 +80,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
                   'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                  text: encodedText,
+                  content: encodedText,
                   source_lang: sourceLang,
                   target_lang: targetLang,
                   ID: localStorage.getItem('tencentCloudID'),
@@ -105,7 +125,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
                   },
                   body: JSON.stringify({
                       model: localStorage.getItem('model'),
-                      text: encodedText,
+                      content: encodedText,
                       source_lang: sourceLang,
                       target_lang: targetLang,
                       api_key : localStorage.getItem('openaiKey'),
@@ -130,7 +150,6 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
                   console.log("transbtn:", result);
                   setOutput(result);  // Update the output here
               }
-              
 
           } catch (error) {
               console.error('Fetch error:', error);

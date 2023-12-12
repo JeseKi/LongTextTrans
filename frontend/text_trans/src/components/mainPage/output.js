@@ -38,7 +38,7 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
                         wrapper.firstChild.remove();
                     }, 500); // Duration should match CSS animation duration
                 }
-            }, 3000); // Time before starting fade-out
+            }, 10000); // Time before starting fade-out
         }
         
                   
@@ -61,6 +61,9 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
                     }
                     if (contextData.info) {
                         bootstrapAlert(contextData.info, 'warning');  // 使用 Bootstrap alert
+                    }
+                    if (outputData.message == "OK"){
+                        console.log("OK")
                     }
                 }
             } catch (error) {
