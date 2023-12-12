@@ -1,4 +1,3 @@
-from fastapi import HTTPException, Depends
 from fastapi.responses import StreamingResponse
 import base64
 import asyncio
@@ -7,6 +6,7 @@ from translators.openaiTranslator import OpenAITranslator
 from translators.types import OpenAITranslationRequest
 from utils.formators import convert_to_list
 from utils.mystream import MyStreamingResponse
+from utils.file_processer import FileProcessor
 from config import Config
 
 class OpenAITranslateView:
@@ -14,7 +14,7 @@ class OpenAITranslateView:
         self.openai_translator = openai_translator
         self.config = config
 
-    async def translate(self, translation_request: OpenAITranslationRequest) -> StreamingResponse:
+    async def translate(self, translation_request: OpenAITranslationRequest, isFile = False) -> StreamingResponse:
         # 检查是否提供了自定义的 API 密钥
         if translation_request.api_key and (translation_request.api_key != [""]):
             # 将逗号分隔的 API 密钥字符串转换为列表
@@ -27,7 +27,10 @@ class OpenAITranslateView:
         # 更新翻译器实例中的 API 密钥
         self.openai_translator.api_keys = openai_keys
         # 解码 Base64 编码的文本
-        decoded_text = base64.b64decode(translation_request.text.encode()).decode()
+        if isFile:
+            decoded_text = translation_request.content
+        else:
+            decoded_text = base64.b64decode(translation_request.content.encode()).decode()
         # 调用翻译器进行翻译并获取结果生成器
         result_generator = self.openai_translator.elementsTranslate(
             decoded_text,
@@ -39,6 +42,7 @@ class OpenAITranslateView:
             model=translation_request.model
         )
 
-        # 返回流式响应
-        return MyStreamingResponse(result_generator)
-        # await message_queue.put(result_generator)
+        if isFile:
+            return result_generator
+        else :
+            return MyStreamingResponse(result_generator)

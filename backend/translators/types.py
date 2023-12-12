@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class TencentTranslationRequest(BaseModel):
-    text: str
+    content: str
     source_lang: str
     target_lang: str
     ID: str | None
@@ -9,7 +9,7 @@ class TencentTranslationRequest(BaseModel):
     
 class OpenAITranslationRequest(BaseModel):
     model: str
-    text: str
+    content: str
     source_lang: str
     target_lang: str
     api_key: str | None

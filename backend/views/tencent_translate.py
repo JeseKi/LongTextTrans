@@ -30,7 +30,7 @@ class TencentTranslateView:
             print("useLocal")
 
         # 解码文本
-        decoded_text = base64.b64decode(translation_request.text.encode()).decode()
+        decoded_text = base64.b64decode(translation_request.content.encode()).decode()
         # 翻译
         result_generator = self.tencent_translator.elementsTranslate(
             decoded_text,

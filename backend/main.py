@@ -1,8 +1,10 @@
 import asyncio
-from fastapi import FastAPI , File , UploadFile , APIRouter , Form
+from fastapi import FastAPI , File , UploadFile , APIRouter , Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse , JSONResponse
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
+import chardet
 import json
 
 from translators.tencentTranslator import TencentTranslator
@@ -11,6 +13,7 @@ from translators.types import TencentTranslationRequest, OpenAITranslationReques
 from config import Config
 from utils.logger import Logger
 from utils.mystream import MyStreamingResponse
+from utils.file_processer import FileProcessor
 from views.openai_translate import OpenAITranslateView
 from views.tencent_translate import TencentTranslateView
 
@@ -52,14 +55,27 @@ async def openai_translate(translation_request: OpenAITranslationRequest):
     return await openai_translate_view.translate(translation_request)
 
 @app.post("/upload/")
-async def upload_file(file: UploadFile = File(...), data: str = Form(...)):
+async def upload_file(request: Request, file: UploadFile = File(...), data: str = Form(...)):
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    ip = request.client.host
     data_dict = json.loads(data)
-    content = await file.read()
-    # 您现在可以将内容保存到文件或进行处理
-    # 例如，保存文件
-    with open(file.filename, 'wb') as f:
-        f.write(content)
+    file_processor = FileProcessor(file, ip)
+    
+    file_name = file_processor.file_name
+    
+    if data_dict['service'] == "OpenAI":
+        generater = file_processor.translate_and_append(OpenAITranslationRequest, data_dict, openai_translate_view.translate)
+        async for result in generater:  # 直接迭代异步生成器
+            data = json.loads(result)
+            if data["have_done"] == 100:
+                return {
+                    "message": "OK",
+                    "file_path": f'{file_name}{ip}{timestamp}'
+                }
+            
+            return MyStreamingResponse(generater)
 
+                
     # 处理完成后，发送一条消息回复
     return JSONResponse(content={"message": True})
 

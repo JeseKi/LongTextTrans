@@ -19,7 +19,7 @@ class OpenAITranslator(Translator):
         self.logger = Logger()
         
     async def _openai_translate(self, 
-                                text: str, 
+                                content: str, 
                                 source_lang: str, 
                                 target_lang: str = 'zh', 
                                 model: str = 'gpt-3.5-turbo',
@@ -47,7 +47,7 @@ class OpenAITranslator(Translator):
                     model=model,
                     messages=[
                         {'role': 'system', 'content': 'You are a professional, authentic translation engine, only returns translations.'},
-                        {'role': 'user', 'content': f'Translate the text from {source_lang} to {target_lang} Language, please do not explain my original text.:{text}'}
+                        {'role': 'user', 'content': f'Translate the text from {source_lang} to {target_lang} Language, please do not explain my original text.:{content}'}
                     ],
                     temperature=0,
                     stream=True
