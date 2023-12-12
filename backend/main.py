@@ -1,8 +1,9 @@
 import asyncio
-from fastapi import FastAPI 
+from fastapi import FastAPI , File , UploadFile , APIRouter , Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse , StreamingResponse
+from fastapi.responses import FileResponse , JSONResponse
 from fastapi.staticfiles import StaticFiles
+import json
 
 from translators.tencentTranslator import TencentTranslator
 from translators.openaiTranslator import OpenAITranslator
@@ -49,6 +50,18 @@ async def tencent_translate(translation_request: TencentTranslationRequest):
 @app.post("/api/openai_translate")
 async def openai_translate(translation_request: OpenAITranslationRequest):
     return await openai_translate_view.translate(translation_request)
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...), data: str = Form(...)):
+    data_dict = json.loads(data)
+    content = await file.read()
+    # 您现在可以将内容保存到文件或进行处理
+    # 例如，保存文件
+    with open(file.filename, 'wb') as f:
+        f.write(content)
+
+    # 处理完成后，发送一条消息回复
+    return JSONResponse(content={"message": True})
 
 # 流式测试
 @app.get("/stream_test")

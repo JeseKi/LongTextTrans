@@ -35,7 +35,6 @@ class OpenAITranslateView:
             translation_request.target_lang,
             self.openai_translator.splitText,
             self.openai_translator._openai_translate,
-            max_length=100,
             isStream=True,
             model=translation_request.model
         )
