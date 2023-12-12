@@ -1,12 +1,43 @@
 import React ,{useEffect , useState} from "react"
+import axios from "axios"
+
 import "./transbtn.css"
 import languageData from './languages.json'
 
-export default function TransBtn ( {setOutput , service , setAccumulatedContent , setHaveDone} ) {
+export default function TransBtn ( {setOutput , service , setAccumulatedContent , setHaveDone , file} ) {
     const [sourceLang , setSourceLang] = useState("en");
     const [targetLang , setTargetLang] = useState("zh");
     const [targetOptions , setTargetOptions] = useState([])
+    // 上传文件
+    const onFileUpload = async (file, sourceLang, targetLang,) => {
+      const formData = new FormData();
 
+      formData.append('file', file)
+      const payload = {
+        service: service,
+        source_lang: sourceLang,
+        target_lang: targetLang,
+        tencentCloudID: localStorage.getItem("tencentCloudID"),
+        tencentCloudKey: localStorage.getItem("tencentCloudKey"),
+        api_key: localStorage.getItem('openaiKey'),
+        rpm: localStorage.getItem('rpm'),
+        model: localStorage.getItem('model')
+      };
+
+      formData.append("data", JSON.stringify(payload));
+  
+      try {
+          const response = await axios.post("http://localhost:8000/upload/", formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+          console.log(response.data);
+          // Handle the response from the server here
+      } catch (error) {
+          console.error("Error uploading file and text:", error);
+      }
+  };
     // 及时更新语言选项
     useEffect(() => {
       if (languageData[sourceLang]) {
@@ -110,15 +141,28 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
   
 
     const translate = () => { // 发起请求
+      if (!file) {
         const currentInput = document.getElementById("input").value;
         const currentSourceLang = document.getElementById("sourceLang").value;
         const currentTargetLang = document.getElementById("targetLang").value;
-        
+        if (currentInput === ""){
+          alert("输入框不能为空")
+          return 
+        }
+
         setOutput("")
         setAccumulatedContent("")
         setHaveDone(0)
 
         fetchData(currentInput, currentSourceLang, currentTargetLang, setOutput);
+      }
+      if (file) {
+        setHaveDone(0)
+        const currentSourceLang = document.getElementById("sourceLang").value;
+        const currentTargetLang = document.getElementById("targetLang").value;
+        onFileUpload(file, currentSourceLang, currentTargetLang)
+        console.log("发送文件")
+      }
       };
 
     return (

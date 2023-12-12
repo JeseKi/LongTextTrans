@@ -1,4 +1,6 @@
 import React ,{useEffect , useState} from "react"
+import axios from "axios";
+
 import "./App.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -15,6 +17,7 @@ function App() {
   const [service, setService] = useState("OpenAI");
   const [accumulatedContent, setAccumulatedContent] = useState("");
   const [haveDone, setHaveDone] = useState(0)
+  const [file, setFile] = useState(null);
 
   return (
     <div>
@@ -22,8 +25,8 @@ function App() {
       <div className='container'>
         <SettingsContainer activateSettings={activateSettings} setActivateSettings={setActivateSettings} />
         <SettingsActivate setActivateSettings={setActivateSettings} service={service} setService={setService}/>
-        <Input setOutput />
-        <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone}/>
+        <Input setFile={setFile} />
+        <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone} file={file}/>
         <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone}/>
       </div>
     </div>

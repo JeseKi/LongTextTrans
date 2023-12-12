@@ -11,3 +11,11 @@
 .file_get{
   position: absolute;
 }
+
+.form-control{
+  max-width: 50%;
+  margin: 0 auto;
+  border: 2px #f596aa70 solid;
+  box-shadow: 0 0px 10px #f596aa30;
+  outline: none;
+}
