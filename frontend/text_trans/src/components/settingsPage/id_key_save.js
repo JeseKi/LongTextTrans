@@ -79,8 +79,8 @@ export default function IdKeySave () {
             </span>
             <span>模型:&nbsp;&nbsp;&nbsp;
             <select className="button" style={{width: "10vw"}} value={selected} onChange={handleSelectChange} id="model">
-              <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
               <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+              <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
               <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
               <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
               <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>

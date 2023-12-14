@@ -88,12 +88,9 @@ class OpenAITranslator(Translator):
                         if f'[WARNNING]API\n\"{api_key}\"\n不正确，请检查您的API' not in self.info:
                             self.info += f'[WARNNING]API\n\"{api_key}\"\n不正确，请检查您的API\n\n'
                             
-                    elif error_code == 419 or error_code == 429:
-                        # 添加速率限制超过的警告消息
-                        limit_type = ['分钟','RPM'] if error_code == 419 else ['天','RPD']
-                        if f'[WARNNING]API\n\"{api_key}\"\n已达到其每{limit_type[0]}请求限制，请检查您的{limit_type[1]}设置' not in self.info:
-                            self.info += f'[WARNNING]API\n\"{api_key}\"\n已达到其每{limit_type[0]}请求限制，请检查您的{limit_type[1]}设置\n\n'
-
+                    elif error_code == 429:
+                        if f"[WARNNING]API\n\"{api_key}\n{e}\"" not in self.info:
+                            self.info += f"[WARNNING]API\n\"{api_key}\n{e}\""
                     api_key_index = (api_key_index + 1) % len(self.api_keys)  # 切换到下一个密钥
                 if api_key_index == 0:
                     re_count += 1

@@ -27,7 +27,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
 
       formData.append("data", JSON.stringify(payload));
   
-        fetch("http://localhost:8000/upload/", {
+        fetch("http://127.0.0.1:8000/upload/", {
           method: 'POST',
           body: formData
       }).then(response => {
@@ -64,7 +64,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
 
         // 下载文件
         function downloadFile(file_path) {
-          fetch(`http://localhost:8000/download/${file_path}`)
+          fetch(`http://127.0.0.1:8000/download/${file_path}`)
           .then(response => response.blob())
           .then(blob => {
               // 创建下载链接并触发下载
@@ -76,8 +76,9 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
               a.click();
               a.remove();
               window.URL.revokeObjectURL(url);
-          })
+          })  
           .catch(error => console.error('Download error:', error));
+          console.log("文件路径:")
         };
     // 及时更新语言选项
     useEffect(() => {
@@ -135,7 +136,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
     }
         // OpenAI服务
         if (service === "OpenAI") {
-          const url = "http://127.0.0.1:8000/api/openai_translate";
+          const url = "/api/openai_translate";
 
             try {
               const text = new TextEncoder().encode(input)
@@ -144,13 +145,17 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
               if (!rpm) {
                   rpm = 3; 
               }
+              let model = localStorage.getItem('model');
+              if (!model){
+                model = "gpt-3.5-turbo"
+              }
               const response = await fetch(url, {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({
-                      model: localStorage.getItem('model'),
+                      model: model,
                       content: encodedText,
                       source_lang: sourceLang,
                       target_lang: targetLang,

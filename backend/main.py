@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import json
+from urllib.parse import quote
+import shutil
+import os
 
 from translators.tencentTranslator import TencentTranslator
 from translators.openaiTranslator import OpenAITranslator
@@ -65,15 +68,28 @@ async def upload_file(request: Request, file: UploadFile = File(...), data: str 
         
     elif data_dict['service'] == "TencentCloud":
         generater = file_processor.translate_and_append(TencentTranslationRequest, data_dict, tencent_view.file_translate)
-        async for result in generater:  # 直接迭代异步生成器
-            data = json.loads(result)
-            return MyStreamingResponse(generater)
+        return MyStreamingResponse(generater)
         
 # 下载文件
 @app.get("/download/{file_name}")
 async def download_file(file_name: str):
-    file_path = f"./temp_files/{file_name}"
-    return FileResponse(file_path)
+    original_file_path = os.path.join(os.getcwd(), "temp_files", file_name)
+    underscore_index = file_name.find('_')
+    if underscore_index != -1:
+        safe_name = file_name[:underscore_index] + file_name[file_name.rfind('.'):]
+    else:
+        safe_name = file_name
+
+    safe_file_path = os.path.join(os.getcwd(), "temp_files", safe_name)
+    
+    # 创建一个新的文件名副本
+    shutil.copyfile(original_file_path, safe_file_path)
+    # 使用 RFC 5987 编码格式
+    safe_name_encoded = quote(safe_name, safe='')
+    headers = {
+        "Content-Disposition": f"attachment; filename*=UTF-8''{safe_name_encoded}"
+    }
+    return FileResponse(safe_file_path, headers=headers)
 
 # 流式测试
 @app.get("/stream_test")
