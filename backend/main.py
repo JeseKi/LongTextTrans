@@ -1,9 +1,8 @@
 import asyncio
-from fastapi import FastAPI , File , UploadFile , APIRouter , Form, Request
+from fastapi import FastAPI , File , UploadFile , Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse , JSONResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from datetime import datetime
 import json
 
 from translators.tencentTranslator import TencentTranslator
@@ -53,37 +52,28 @@ async def tencent_translate(translation_request: TencentTranslationRequest):
 async def openai_translate(translation_request: OpenAITranslationRequest):
     return await openai_translate_view.translate(translation_request)
 
+# 下载文件
 @app.post("/upload/")
 async def upload_file(request: Request, file: UploadFile = File(...), data: str = Form(...)):
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     ip = request.client.host
     data_dict = json.loads(data)
     file_processor = FileProcessor(file, ip)
     
-    file_name = file_processor.file_name
-    
     if data_dict['service'] == "OpenAI":
         generater = file_processor.translate_and_append(OpenAITranslationRequest, data_dict, openai_translate_view.file_translate)
-        async for result in generater:  # 直接迭代异步生成器
-            data = json.loads(result)
-            if data["have_done"] == 100:
-                data["file_path"] = f'{file_name}{ip}{timestamp}'
-                return data
-            
-            return MyStreamingResponse(generater)
+        return MyStreamingResponse(generater)
         
     elif data_dict['service'] == "TencentCloud":
         generater = file_processor.translate_and_append(TencentTranslationRequest, data_dict, tencent_view.file_translate)
         async for result in generater:  # 直接迭代异步生成器
             data = json.loads(result)
-            if data["have_done"] == 100:
-                data["file_path"] = f'{file_name}{ip}{timestamp}'
-                return data
-            
             return MyStreamingResponse(generater)
-                
-    # 处理完成后，发送一条消息回复
-    return JSONResponse(data)
+        
+# 下载文件
+@app.get("/download/{file_name}")
+async def download_file(file_name: str):
+    file_path = f"./temp_files/{file_name}"
+    return FileResponse(file_path)
 
 # 流式测试
 @app.get("/stream_test")

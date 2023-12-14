@@ -13,4 +13,4 @@ class OpenAITranslationRequest(BaseModel):
     source_lang: str
     target_lang: str
     api_key: str | None
-    rpm : int | None
+    rpm : int | str 

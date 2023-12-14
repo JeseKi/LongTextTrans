@@ -4,6 +4,7 @@ from fastapi import UploadFile
 from pydantic import BaseModel
 from typing import Type, AsyncGenerator
 import json
+import asyncio
 
 class FileProcessor:
     """
@@ -61,9 +62,17 @@ class FileProcessor:
         async for origin_data in result_generator:
             data = json.loads(origin_data)
             context = json.loads(data["context"])
+            
             if context["message"] == True:
                 with open(f"./temp_files/{self.file_name}", 'a', encoding='utf-8') as f:
                     result = context["content"]
                     f.write(result)
                     
-            yield origin_data
+            if data["have_done"] == "100.00":
+                send_data = {}
+                send_data["file_path"] = f'{self.file_name}{self.request_ip}{self.timestamp}'
+                send_data["have_done"] = "100.0"
+                print(send_data)
+                yield json.dumps(send_data) + "\n"
+            else :
+                yield origin_data

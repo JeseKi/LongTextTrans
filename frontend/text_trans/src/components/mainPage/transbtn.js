@@ -4,10 +4,11 @@ import axios from "axios"
 import "./transbtn.css"
 import languageData from './languages.json'
 
-export default function TransBtn ( {setOutput , service , setAccumulatedContent , setHaveDone , file} ) {
+export default function TransBtn ( {setOutput , service , setAccumulatedContent , setHaveDone , file , filePath} ) {
     const [sourceLang , setSourceLang] = useState("en");
     const [targetLang , setTargetLang] = useState("zh");
     const [targetOptions , setTargetOptions] = useState([])
+
     // 上传文件
     const onFileUpload = async (file, sourceLang, targetLang,) => {
       const formData = new FormData();
@@ -32,22 +33,25 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
       }).then(response => {
           const reader = response.body.getReader();
           let result = '';
-          // 读取数据流
           function read() {
               reader.read().then(({ done, value }) => {
                   if (done) {
                       console.log("Stream complete");
+                      downloadFile(filePath)
                       return;
                   }
                   // Decode the current chunk
                   const chunk = new TextDecoder().decode(value);
               
-                  // Replace the previous result with the new chunk
-                  result = chunk;  // Replace, don't append
+                  // Append the new chunk to the result
+                  result += chunk;  // Append, not replace
               
                   // Immediately process the current accumulated result
                   console.log("transbtn:", result);
                   setOutput(result);  // Update the output here
+
+                  read();  // Continue reading the next chunk
+                  
               }).catch(error => {
                   console.error("Error reading stream:", error);
               });
@@ -56,8 +60,25 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
       }).catch(error => {
           console.error("Error uploading file and text:", error);
       });
-    
   };
+
+        // 下载文件
+        function downloadFile(file_path) {
+          fetch(`http://localhost:8000/download/${file_path}`)
+          .then(response => response.blob())
+          .then(blob => {
+              // 创建下载链接并触发下载
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = file_path.split('/').pop();  // 假设您想使用文件原名作为下载名
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              window.URL.revokeObjectURL(url);
+          })
+          .catch(error => console.error('Download error:', error));
+        };
     // 及时更新语言选项
     useEffect(() => {
       if (languageData[sourceLang]) {
@@ -105,6 +126,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
             // 立即处理当前累积的结果
             console.log("transbtn:",result);
             setOutput(result);  // 在这里更新输出
+            
         }
 
       } catch (error) {
@@ -118,6 +140,10 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
             try {
               const text = new TextEncoder().encode(input)
               const encodedText = btoa(String.fromCharCode(...text))
+              let rpm = localStorage.getItem('rpm');
+              if (!rpm) {
+                  rpm = 3; 
+              }
               const response = await fetch(url, {
                   method: 'POST',
                   headers: {
@@ -129,7 +155,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
                       source_lang: sourceLang,
                       target_lang: targetLang,
                       api_key : localStorage.getItem('openaiKey'),
-                      rpm : localStorage.getItem('rpm')
+                      rpm : rpm
                   })
               });
 

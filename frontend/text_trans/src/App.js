@@ -18,7 +18,8 @@ function App() {
   const [accumulatedContent, setAccumulatedContent] = useState("");
   const [haveDone, setHaveDone] = useState(0)
   const [file, setFile] = useState(null);
-
+  const [filePath, setFilePath] = useState("")
+  
   return (
     <div>
       <h1>长文本翻译器</h1>
@@ -26,8 +27,8 @@ function App() {
         <SettingsContainer activateSettings={activateSettings} setActivateSettings={setActivateSettings} />
         <SettingsActivate setActivateSettings={setActivateSettings} service={service} setService={setService}/>
         <Input setFile={setFile} />
-        <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone} file={file}/>
-        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone}/>
+        <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone} filePath={filePath} file={file}/>
+        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone} setFilePath={setFilePath}/>
       </div>
     </div>
   );
