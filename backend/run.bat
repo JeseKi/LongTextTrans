@@ -28,6 +28,6 @@ IF EXIST "requirements.txt" (
 
 REM 启动Uvicorn服务器
 echo Starting Uvicorn server...
-python main.py
+uvicorn main:app
 
 pause
