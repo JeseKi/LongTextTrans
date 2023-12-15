@@ -37,7 +37,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
               reader.read().then(({ done, value }) => {
                   if (done) {
                       console.log("Stream complete");
-                      downloadFile(filePath)
+                      console.log("腾讯云filePath",filePath)
                       return;
                   }
                   // Decode the current chunk
@@ -61,25 +61,6 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
           console.error("Error uploading file and text:", error);
       });
   };
-
-        // 下载文件
-        function downloadFile(file_path) {
-          fetch(`http://127.0.0.1:8000/download/${file_path}`)
-          .then(response => response.blob())
-          .then(blob => {
-              // 创建下载链接并触发下载
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = file_path.split('/').pop();  // 假设您想使用文件原名作为下载名
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              window.URL.revokeObjectURL(url);
-          })  
-          .catch(error => console.error('Download error:', error));
-          console.log("文件路径:")
-        };
     // 及时更新语言选项
     useEffect(() => {
       if (languageData[sourceLang]) {
@@ -136,7 +117,7 @@ export default function TransBtn ( {setOutput , service , setAccumulatedContent 
     }
         // OpenAI服务
         if (service === "OpenAI") {
-          const url = "/api/openai_translate";
+          const url = "http://127.0.0.1:8000/api/openai_translate";
 
             try {
               const text = new TextEncoder().encode(input)

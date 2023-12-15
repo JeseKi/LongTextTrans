@@ -28,7 +28,7 @@ function App() {
         <SettingsActivate setActivateSettings={setActivateSettings} service={service} setService={setService}/>
         <Input setFile={setFile} />
         <TransBtn setOutput={setOutput} service={service} setAccumulatedContent={setAccumulatedContent} setHaveDone={setHaveDone} filePath={filePath} file={file}/>
-        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone} setFilePath={setFilePath}/>
+        <Output output={output} accumulatedContent={accumulatedContent} setAccumulatedContent={setAccumulatedContent} haveDone={haveDone} setHaveDone={setHaveDone} setFilePath={setFilePath} file={file}/>
       </div>
     </div>
   );

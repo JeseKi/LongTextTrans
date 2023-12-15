@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function Output({ output , accumulatedContent , setAccumulatedContent, haveDone , setHaveDone , setFilePath}) {
+export default function Output({ output , accumulatedContent , setAccumulatedContent, haveDone , setHaveDone , setFilePath , file}) {
 
     useEffect(() => {
     
@@ -40,8 +40,6 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
                 }
             }, 10000); // Time before starting fade-out
         }
-        
-                  
     
         // 使用换行符分割字符串
         const parts = output.split('\n');
@@ -89,6 +87,7 @@ export default function Output({ output , accumulatedContent , setAccumulatedCon
             </div>
             <textarea 
                 className='text_container' 
+                style={{display : file ? "none" : ""}}
                 placeholder="这里将出现等会翻译后的文本" 
                 readOnly 
                 id="output" 
