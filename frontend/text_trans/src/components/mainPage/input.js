@@ -24,7 +24,7 @@ export default function Input({setFile}) {
       <p>源文本</p>
       <textarea
         className='text_container'
-        placeholder={showPlaceholder ? "在这里输入文字或拖入文件" : ""}
+        placeholder={showPlaceholder ? "在这里输入文字" : ""}
         id="input"
         onFocus={handleFocus}
         onBlur={handleBlur}

@@ -55,7 +55,7 @@ async def tencent_translate(translation_request: TencentTranslationRequest):
 async def openai_translate(translation_request: OpenAITranslationRequest):
     return await openai_translate_view.translate(translation_request)
 
-# 下载文件
+# 上传文件
 @app.post("/upload/")
 async def upload_file(request: Request, file: UploadFile = File(...), data: str = Form(...)):
     ip = request.client.host
