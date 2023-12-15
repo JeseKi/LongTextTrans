@@ -10,6 +10,7 @@ python版本 3.10
 
 ### Windows
 1. 将relase中的`text_trans.zip`下载后在本地解压
+2. 在该目录下打开Powershell
 2. 输入`cp config-template.json config.json`
 3. 在`config.json`中填入自己的信息(假如打算在web页面中设置信息就可以不在这里填写)
 4. 双击`run.bat`
