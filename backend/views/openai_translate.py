@@ -64,7 +64,6 @@ class OpenAITranslateView:
             self.openai_translator._openai_translate,
             isStream=True,
             model=translation_request.model,
-            max_length=100
         )
 
         async for data in result_generator:
