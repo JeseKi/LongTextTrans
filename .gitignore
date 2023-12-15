@@ -1,2 +1,5 @@
 /venv
 /backend/config.json
+/frontend/text_trans/node_modules
+/backend/tests
+
